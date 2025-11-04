@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    restart: unless-stopped
+
+  ai-sre-agent:
+    build: .
+    container_name: ai-sre-agent
+    depends_on:
+      - ollama
+    volumes:
+      - /var/log:/logs:ro
+      - ./config:/app/config
+    ports:
+      - "8000:8000"
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+    restart: unless-stopped
+
+volumes:
+  ollama_data:
